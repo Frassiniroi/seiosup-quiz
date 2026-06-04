@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seios UP! Quiz</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f7f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Container simulando Smartphone Centralizado */
+        .quiz-container {
+            width: 100%;
+            max-width: 410px;
+            height: 100vh;
+            max-height: 840px;
+            background-color: #ffffff;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+        }
+
+        @media (max-width: 450px) {
+            .quiz-container {
+                max-height: 100vh;
+                border-radius: 0;
+            }
+        }
+
+        /* Header */
+        .quiz-header {
+            padding: 20px 24px 10px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #fff;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 15px;
+            font-weight: 800;
+            color: #bc21cb;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        /* Barra de Progresso */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: #f0e6f5;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 5%;
+            height: 100%;
+            background: linear-gradient(90deg, #d946ef, #a21caf);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        /* Corpo do Quiz */
+        .quiz-body {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .step {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .step.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Textos */
+        .question-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .question-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        /* Grid de Opções Genéricas */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Estilo dos Botões de Opção Padrão (Texto) */
+        .option-button {
+            background-color: #fdf2ff;
+            border: 1px solid #f5d0fe;
+            border-radius: 14px;
+            padding: 16px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #4a044e;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .option-button:hover, .option-button:active {
+            background-color: #f0abfc;
+            border-color: #d946ef;
+            color: #fff;
+        }
+
+        /* Opções com checkbox circular simulado */
+        .option-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d946ef;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        /* Botão Continuar Estilo Padrão */
+        .btn-continue {
+            background: linear-gradient(135deg, #e879f9, #c084fc);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 24px;
+            box-shadow: 0 4px 15px rgba(217, 70, 239, 0.3);
+            transition: transform 0.2s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-continue:active {
+            transform: scale(0.98);
+        }
+
+        /* ESTILO EXPERT LUANA */
+        .ref-intro-text {
+            font-size: 14px;
+            font-style: italic;
+            color: #111827;
+            text-align: center;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .ref-square-image {
+            width: 100%;
+            max-width: 250px;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 20px;
+            margin: 0 auto 12px auto;
+            display: block;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .ref-copy-card {
+            background-color: #fff0f6;
+            border-radius: 14px;
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 13.5px;
+            line-height: 1.45;
+            color: #2d3748;
+            margin-bottom: 14px;
+        }
+
+        .ref-copy-card b {
+            color: #111827;
+        }
+
+        .ref-btn-action {
+            background: linear-gradient(135deg, #bc21cb, #a21caf);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(188, 33, 203, 0.3);
+            transition: transform 0.2s;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 2px;
+        }
+
+        .ref-btn-action:active {
+            transform: scale(0.98);
+        }
+
+        /* Telas Informativas de Meio de Funil */
+        .info-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+        }
+
+        /* Tela de Carregamento Final */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3e8ff;
+            border-top: 5px solid #d946ef;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 24px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-steps {
+            text-align: left;
+            width: 100%;
+            max-width: 280px;
+            margin-top: 20px;
+        }
+
+        .loading-steps-items {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .loading-steps-items.done {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .loading-steps-items.done::before {
+            content: "✓";
+        }
+
+        .loading-steps-items.pending::before {
+            content: "○";
+            color: #d946ef;
+        }
+
+        /* ESTILOS DA PÁGINA DE OFERTA INTEGRADA */
+        .comparison-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            gap: 10px;
+            width: 100%;
+        }
+        .comparison-box {
+            width: 48%;
+            text-align: center;
+            background: #fdf2ff;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid #f5d0fe;
+        }
+        .comparison-box p {
+            font-size: 11px;
+            font-weight: bold;
+            color: #4a044e;
+            margin-top: 5px;
+        }
+        /* Ajuste do tamanho dos emojis na comparação */
+        .comparison-emoji {
+            font-size: 36px;
+            margin: 4px 0;
+            display: block;
+        }
+
+        .table-check {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            font-size: 12px;
+        }
+        .table-check td {
+            padding: 8px;
+            border: 1px solid #f3e8ff;
+            width: 50%;
+            vertical-align: top;
+        }
+        
+        .cross-list, .check-list { 
+            list-style: none; 
+        }
+        .cross-list li, .check-list li { 
+            margin-bottom: 8px; 
+            line-height: 1.3; 
+            display: flex;
+            align-items: flex-start;
+            text-align: left;
+            gap: 6px;
+        }
+        .cross-list li span, .check-list li span {
+            flex-shrink: 0;
+        }
+
+        .plan-box {
+            border: 2px solid #bc21cb;
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 16px;
+            background: #fff;
+            width: 100%;
+        }
+        .plan-header {
+            background: #bc21cb;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-weight: bold;
+            font-size: 13px;
+            margin: -15px -15px 15px -15px;
+            border-top-left-radius: 11px;
+            border-top-right-radius: 11px;
+        }
+        .plan-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+        }
+        .old-price { text-decoration: line-through; color: #9ca3af; font-size: 14px;}
+        .badge { background: #d946ef; color: white; font-size: 11px; padding: 2px 6px; border-radius: 6px; font-weight: bold; }
+        
+        .benefits-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 10px;
+            align-self: flex-start;
+        }
+        
+        .benefits-list {
+            list-style: none;
+            margin-bottom: 20px;
+            text-align: left;
+            width: 100%;
+        }
+        .benefits-list li {
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: #4b5563;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        .benefits-list li span {
+            flex-shrink: 0;
+        }
+        
+        .buy-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            text-align: center;
+            text-decoration: none;
+            margin-bottom: 15px;
+        }
+        .buy-btn:active { transform: scale(0.98); }
+        
+        .guarantee-box {
+            text-align: center;
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #f3e8ff;
+            font-size: 12px;
+            color: #6b7280;
+            width: 100%;
+        }
+        .guarantee-box h4 { color: #111827; margin-bottom: 6px; font-size: 13px; font-weight: 700;}
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div class="quiz-header" id="quizHeader">
+            <div class="logo">Seios UP!</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="quiz-body">
+
+            <!-- PASSO 1 -->
+            <div class="step active" id="step1" data-progress="7">
+                <h2 class="question-title">Começamos</h2>
+                <p class="question-subtitle">Escolha a sua idade abaixo.</p>
+                <div class="options-grid">
+                    <button class="option-button" onclick="nextStep(2)">18-29 anos <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(2)">29-39 anos <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(2)">39-49 anos <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(2)">50 anos ou mais <span class="option-check"></span></button>
+                </div>
+            </div>
+
+            <!-- PASSO 2 -->
+            <div class="step" id="step2" data-progress="14">
+                <h2 class="question-title">Qual é o nível de queda dos seus seios?</h2>
+                <p class="question-subtitle">Toque na opção abaixo.</p>
+                <div class="options-grid">
+                    <button class="option-button" onclick="nextStep(3)">Grau I (Levemente caídos) <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(3)">Grau II (Moderadamente caídos) <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(3)">Grau III (Acentuadamente caídos) <span class="option-check"></span></button>
+                </div>
+            </div>
+
+            <!-- PASSO 3 -->
+            <div class="step" id="step3" data-progress="21">
+                <h2 class="question-title">Qual é o seu principal objetivo?</h2>
+                <p class="question-subtitle">Toque na opção abaixo.</p>
+                <div class="options-grid">
+                    <button class="option-button" onclick="nextStep(4)">Aumentar a autoestima <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(4)">Melhorar a relação com meu parceiro <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(4)">Usar decotes e biquínis sem sentir vergonha <span class="option-check"></span></button>
+                </div>
+            </div>
+
+            <!-- PASSO 4 -->
+            <div class="step" id="step4" data-progress="28">
+                <h2 class="question-title">Qual é o seu tipo de corpo?</h2>
+                <p class="question-subtitle">Toque na opção abaixo.</p>
+                <div class="options-grid">
+                    <button class="option-button" onclick="nextStep(5)">Magra <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(5)">Normal <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(5)">Acima do Peso <span class="option-check"></span></button>
+                </div>
+            </div>
+
+            <!-- PASSO 5: EXPERT LUANA -->
+            <div class="step" id="step5" data-progress="35">
+                <p class="ref-intro-text">E agora que você deu o primeiro passo, deixa eu me apresentar para você:</p>
+                
+                <img src="https://i.postimg.cc/rFSGHd1Y/IMG-1185.png" class="ref-square-image" alt="Expert Luana">
+                
+                <div class="ref-copy-card">
+                    💜 Eu me chamo <b>Luana Santos</b>, atuo na área de estética de seios há mais de 5 anos. <b>Já ajudei + de 500 mulheres</b> com meu método sem cirurgia e sem anticoncepcional resolvendo de forma natural e hoje compartilho minha rotina para <b>+ de 10 mil seguidores</b> no meu Instagram.
+                </div>
+                
+                <button class="ref-btn-action" onclick="nextStep(6)">Continuar</button>
+            </div>
+
+            <!-- PASSO 6 -->
+            <div class="step" id="step6" data-progress="42">
+                <h2 class="question-title">Atualmente você está amamentando?</h2>
+                <p class="question-subtitle">Selecione uma resposta confiável.</p>
+                <div class="options-grid">
+                    <button class="option-button" onclick="nextStep(7)">Sim, estou amamentando. <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(7)">Não estou amamentando. <span class="option-check"></span></button>
+                </div>
+            </div>
+
+            <!-- PASSO 7 -->
+            <div class="step" id="step7" data-progress="49">
+                <h2 class="question-title">Você já amamentou alguma vez?</h2>
+                <p class="question-subtitle">Selecione uma resposta.</p>
+                <div class="options-grid">
+                    <button class="option-button" onclick="nextStep(8)">Sim, já amamentei. <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(8)">Nunca amamentei. <span class="option-check"></span></button>
+                </div>
+            </div>
+
+            <!-- PASSO 8 -->
+            <div class="step" id="step8" data-progress="56">
+                <h2 class="question-title">Você já fez algum procedimento estético para melhorar a aparência dos seus seios?</h2>
+                <p class="question-subtitle">Selecione uma opção.</p>
+                <div class="options-grid">
+                    <button class="option-button" onclick="nextStep(9)">Sim, já fez cirurgia. <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(9)">Sim, já fez alguns retoques/procedimentos simples. <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(9)">Não, nunca fez nenhum procedimento. <span class="option-check"></span></button>
+                </div>
+            </div>
+
+            <!-- PASSO 9 -->
+            <div class="step" id="step9" data-progress="63">
+                <h2 class="question-title">Você utiliza algum método anticoncepcional?</h2>
+                <p class="question-subtitle">Toque na sua opção atual.</p>
+                <div class="options-grid">
+                    <button class="option-button" onclick="nextStep(10)">Sim, eu tomo. <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(10)">Sim, eu tomava mas parei. <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(10)">Não, não tomo. <span class="option-check"></span></button>
+                </div>
+            </div>
+
+            <!-- PASSO 10 -->
+            <div class="step" id="step10" data-progress="70">
+                <h2 class="question-title">Qual é o seu principal objetivo com o método?</h2>
+                <p class="question-subtitle">Escolha a opção mais importante para você.</p>
+                <div class="options-grid">
+                    <button class="option-button" onclick="nextStep(11)">Aumentar a firmeza e sustentação <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(11)">Melhorar a simetria e o volume <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(11)">Reduzir a flacidez pós-gestação ou perda de peso <span class="option-check"></span></button>
+                    <button class="option-button" onclick="nextStep(11)">Prevenir o envelhecimento da pele da região <span class="option-check"></span></button>
+                </div>
+            </div>
+
+            <!-- PASSO 11 -->
+            <div class="step" id="step11" data-progress="77">
+                <h2 class="question-title">Quanto tempo por dia você tem disponível para se dedicar ao método?</h2>
+                <p class="question-subtitle">Selecione uma opção realística.</p>
+                <div class="options-grid">
+                    <button class="option-button" onclick="runAnalysis()">Apenas 5 a 10 minutos por dia <span class="option-check"></span></button>
+                    <button class="option-button" onclick="runAnalysis()">Entre 15 a 30 minutos por dia <span class="option-check"></span></button>
+                    <button class="option-button" onclick="runAnalysis()">Mais de 30 minutos por dia <span class="option-check"></span></button>
+                </div>
+            </div>
+
+            <!-- TELA DE LOADING -->
+            <div class="step" id="stepLoading" data-progress="90">
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <h2 class="question-title" id="loadingTitle">Analisando suas respostas...</h2>
+                    
+                    <div class="loading-steps">
+                        <div class="loading-steps-items pending" id="load1">Processando perfil corporal e idade...</div>
+                        <div class="loading-steps-items pending" id="load2">Avaliando índice de flacidez e tecidos...</div>
+                        <div class="loading-steps-items pending" id="load3">Calculando cronograma ideal de sustentação...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PÁGINA DE OFERTA -->
+            <div class="step" id="stepOffer" data-progress="100">
+                <div class="info-content">
+                    <h2 class="question-title" style="margin-bottom: 4px;">Seios UP - Plano Personalizado</h2>
+                    <p style="text-align:center; font-size:14px; margin-bottom:16px; color:#bc21cb; font-weight:bold;">Resultados em 21 Dias</p>
+                    
+                    <!-- CARDS DE COMPARAÇÃO ATUALIZADOS DE ACORDO COM A IMAGE_4.PNG -->
+                    <div class="comparison-container">
+                        <div class="comparison-box">
+                            <p style="font-weight: 800; color:#bc21cb;">HOJE</p>
+                            <span class="comparison-emoji">❌</span> 
+                            <p style="color: #ef4444;">Flácidos e caídos</p>
+                        </div>
+                        <div class="comparison-box">
+                            <p style="font-weight: 800; color:#bc21cb;">EM 21 DIAS</p>
+                            <span class="comparison-emoji">✅</span>
+                            <p style="color: #10b981;">Erguidos e firmes</p>
+                        </div>
+                    </div>
+
+                    <table class="table-check">
+                        <tr>
+                            <td>
+                                <ul class="cross-list">
+                                    <li><span>❌</span> <div>Baixa autoestima</div></li>
+                                    <li><span>❌</span> <div>Inconforto com roupas decotadas</div></li>
+                                    <li><span>❌</span> <div>Relações íntimas prejudicadas</div></li>
+                                    <li><span>❌</span> <div>Vergonha em praias e piscinas</div></li>
+                                </ul>
+                            </td>
+                            <td>
+                                <ul class="check-list">
+                                    <li><span>✅</span> <div>Altíssima autoestima</div></li>
+                                    <li><span>✅</span> <div>Liberdade para usar a roupa que sempre sonhou</div></li>
+                                    <li><span>✅</span> <div>Relações íntimas incríveis e confiantes</div></li>
+                                    <li><span>✅</span> <div>Momentos inesquecíveis na praia ou clubes</div></li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="plan-box">
+                        <div class="plan-header">PLANO DESTAQUE</div>
+                        <div class="plan-price-row">
+                            <span style="font-size:14px; color:#4b5563; text-align: left; font-weight: 600;">
+                                <input type="radio" checked disabled style="accent-color: #bc21cb;"> PLANO VIP<br>
+                                <span class="old-price">R$ 97</span>
+                            </span>
+                            <span style="text-align:right; font-weight: 800;">
+                                <span class="badge">80% OFF</span><br>
+                                <span style="color: #bc21cb; font-size: 22px;">R$19,90</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <h3 class="benefits-title">O que você vai receber?</h3>
+                    <ul class="benefits-list">
+                        <li><span>📌</span> <div><b>PLANO VIP:</b> Plano exclusivo para levantar seus seios e fazê-los parecer firmes e erguidos.</div></li>
+                        <li><span>📌</span> <div><b>SEGREDO REVELADO:</b> Segredos das celebridades no cuidado com os seios.</div></li>
+                        <li><span>📌</span> <div><b>GUIA PRÁTICO:</b> Preliminares e truques para dar vida à sua relação (você vai precisar!).</div></li>
+                        <li><span>📌</span> <div><b>DIETA SEM RESTRIÇÕES:</b> Melhore seu corpo e sua saúde através de uma dieta simples e rápida de apenas 7 dias.</div></li>
+                        <li><span>📌</span> <div><b>CLAREAMENTO DE AXILAS E VIRILHAS:</b> O método utilizado por artistas para obter axilas e virilhas claras.</div></li>
+                    </ul>
+
+                    <a href="https://SEU-LINK-DE-DESTINO-AQUI.com" class="buy-btn">
+                        COMPRAR AGORA!
+                    </a>
+
+                    <div class="guarantee-box">
+                        <h4>Garantia de Reembolso de 7 Dias</h4>
+                        <p>Nosso plano <b>Seios Up!</b> está respaldado por uma garantia de reembolso de 100% do seu dinheiro.</p>
+                        <p style="margin-top:6px;">Estamos tão confiantes de que nosso método te ajudará, que garantimos o reembolso total dentro de 7 dias após a compra, caso você não veja resultados visíveis nos seus seios.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function nextStep(stepNumber) {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach(step => step.classList.remove('active'));
+
+            const currentStep = document.getElementById('step' + stepNumber);
+            currentStep.classList.add('active');
+
+            const progressValue = currentStep.getAttribute('data-progress');
+            document.getElementById('progressBar').style.width = progressValue + '%';
+            
+            document.querySelector('.quiz-body').scrollTop = 0;
+        }
+
+        function runAnalysis() {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach(step => step.classList.remove('active'));
+            
+            document.getElementById('stepLoading').classList.add('active');
+            document.getElementById('progressBar').style.width = '90%';
+
+            document.getElementById('loadingTitle').innerText = 'Analisando suas respostas...';
+            document.getElementById('load1').className = 'loading-steps-items pending';
+            document.getElementById('load2').className = 'loading-steps-items pending';
+            document.getElementById('load3').className = 'loading-steps-items pending';
+
+            setTimeout(() => {
+                document.getElementById('load1').className = 'loading-steps-items done';
+            }, 1000);
+
+            setTimeout(() => {
+                document.getElementById('load2').className = 'loading-steps-items done';
+            }, 2000);
+
+            setTimeout(() => {
+                document.getElementById('load3').className = 'loading-steps-items done';
+                document.getElementById('loadingTitle').innerText = 'Estruturando seu plano...';
+            }, 3000);
+
+            setTimeout(() => {
+                showOffer();
+            }, 4000);
+        }
+
+        function showOffer() {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach(step => step.classList.remove('active'));
+
+            document.getElementById('stepOffer').classList.add('active');
+            document.getElementById('progressBar').style.width = '100%';
+            document.querySelector('.quiz-body').scrollTop = 0;
+        }
+    </script>
+</body>
+</html>
